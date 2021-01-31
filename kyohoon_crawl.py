@@ -11,11 +11,11 @@ def main(args):
     title_list = list()
     text_list = list()
 
-    page = 1
+    page_num = 1
     loop_start = False
 
     while True:
-        main_url = f'http://www.inven.co.kr/board/lol/4625?sort=PID&p={page}'
+        main_url = f'http://www.inven.co.kr/board/lol/4625?sort=PID&p={page_num}'
         main_page = BeautifulSoup(requests.get(main_url).text, 'html.parser')
         ix_list = list()
 
@@ -28,7 +28,7 @@ def main(args):
         if len(ix_list) >= 1:
             loop_start = True
         else:
-            page += 1
+            page_num += 1
             time.sleep(0.4)
 
         if loop_start:
@@ -39,6 +39,7 @@ def main(args):
                     title_list.append(page.find('div', {'class':'articleTitle'}).text.replace(u'\xa0', u' '))
                     text_list.append(page.find('div', {'id': 'powerbbsContent'}).text.replace(u'\xa0', u' '))
                     time.sleep(0.3)
+                page_num += 1
             else:
                 break
 
@@ -46,7 +47,7 @@ def main(args):
     pd.DataFrame({
         'title': title_list,
         'text': text_list
-    }).to_csv(os.path.join(args.save_path, f'{crawl_date}.csv'), index=False)
+    }).to_csv(os.path.join(args.save_path, f'{args.crawl_date}.csv'), index=False)
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser(description='Naver Article Crawling')
@@ -57,4 +58,4 @@ if __name__=='__main__':
     start_time = time.time()
     main(args)
     spend_time = (time.time() - start_time) / 60
-    print('Done!; {:2.2%}min spend.'.format(spend_time))
+    print(f'Done!; {round(spend_time, 4)}min spend.')
